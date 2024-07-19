@@ -1,37 +1,8 @@
 ---
+
 deployment:
+
   tasks:
     - export DEPLOYPATH=/home/bluebull/public_html
 
-    # Step 1: Pull the latest code from the repository
-    - name: "Pull latest code"
-      command: |
-        git pull origin main
-
-    # Step 2: Install Composer dependencies
-    - name: "Install Composer dependencies"
-      command: |
-        cd $DEPLOYPATH
-        composer install --no-dev --optimize-autoloader
-
-    # Step 3: Set the correct permissions
-    - name: "Set correct permissions"
-      command: |
-        find $DEPLOYPATH/writable -type d -exec chmod 775 {} \;
-        find $DEPLOYPATH/writable -type f -exec chmod 664 {} \;
-
-    # Step 4: Set environment file
-    - name: "Set environment file"
-      command: |
-        cp $DEPLOYPATH/env $DEPLOYPATH/.env
-        php $DEPLOYPATH/vendor/bin/phinx migrate -c $DEPLOYPATH/phinx.php
-
-    # Step 5: Clear any caches (if applicable)
-    - name: "Clear caches"
-      command: |
-        php $DEPLOYPATH/public/index.php cache:clear
-
-    # Step 6: Run any post-deployment tasks
-    - name: "Run post-deployment tasks"
-      command: |
-        echo "Deployment complete!"
+    - cp -r * $DEPLOYPATH
