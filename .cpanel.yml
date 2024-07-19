@@ -1,7 +1,4 @@
 ---
-# .cpanel.yml
-# Example configuration for deploying a CodeIgniter 4 project
-
 deployment:
   tasks:
     - export DEPLOYPATH=/home/bluebull/public_html
