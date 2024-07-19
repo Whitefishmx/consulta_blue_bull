@@ -41,7 +41,7 @@
 				return $bBull->consultaLimite ( $value, $this->env );
 			}, $fichas );
 			if ( count ( $limite ) === 1 && !$limite[ 0 ] ) {
-				return $this->serverError ( 'Error con el RFC ingresado', $limite[ 1 ] );
+				return $this->serverError ( 'Error con el RFC ingresado.', $limite[ 1 ] );
 			}
 			return $this->getResponse ( $limite );
 		}
