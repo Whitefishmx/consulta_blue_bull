@@ -9,6 +9,6 @@
 			if ( $this->validateSession () ) {
 				return view ( 'header' ) . view ( 'main' ) . view ( 'footer' );
 			}
-			return redirect ( 'signin' );
+			return redirect ( 'http://bluebull.local/signin' );
 		}
 	}

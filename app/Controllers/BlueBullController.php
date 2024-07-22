@@ -7,11 +7,11 @@
 	use CodeIgniter\HTTP\ResponseInterface;
 	
 	class BlueBullController extends BaseController {
-		public function index (): string|RedirectResponse {
+		public function index () {
 			if ( $this->validateSession () ) {
 				return view ( 'header' ) . view ( 'bluebull' ) . view ( 'footer' );
 			}
-			return redirect ( 'signin' );
+			return redirect()->route('signin');
 		}
 		/**
 		 * Permite obtener el límite de crédito de un RFC ingresado

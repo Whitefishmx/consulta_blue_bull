@@ -29,7 +29,7 @@ class Database extends Config
     public array $default = [
         'DSN'          => '',
         'hostname'     => 'localhost',
-        'username'     => 'jarvis',
+        'username'     => 'bluebull_jarvis',
         'password'     => '$&BLu3BUll\24',
         'database'     => 'bluebull_sandbox',
         'DBDriver'     => 'MySQLi',
