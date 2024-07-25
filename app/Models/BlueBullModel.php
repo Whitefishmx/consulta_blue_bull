@@ -3,7 +3,7 @@
 	namespace App\Models;
 	class BlueBullModel extends BaseModel {
 		private string $sandboxUrl = 'https://sad.bluebull.mx/demob/integrador_wsdl.php';
-		private string $liveUrl = 'https://happy.bluebull.mx/integrador_wsdl.php';
+		private string $liveUrl = 'https://sad.bluebull.mx/gobsonora/integrador_wsdl.php';
 		/**
 		 * Consulta la ficha de un rfc
 		 *
@@ -93,8 +93,8 @@
 						"<transacciones>
 							<transaccion type='$endpoint'>
 								<id>1</id>
-								<login>FONDOACH.INTEGRADOR</login>
-								<contrasena>#usuario11</contrasena>
+								<login>VATORO.INTEGRADOR</login>
+								<contrasena>#0987#qrte12</contrasena>
 								$data
 							</transaccion>
 							</transacciones>" ],
