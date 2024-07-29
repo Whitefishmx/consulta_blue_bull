@@ -22,16 +22,22 @@
 				return ( $data );
 			}
 			$input = $this->getRequestInput ( $this->request );
+			$data = [];
 			if ( $_FILES[ 'letter' ][ 'error' ] !== UPLOAD_ERR_OK ) {
-				return $this->errDataSuplied ( 'No se logró cargar el archivo' );
+				$data = [
+					'rfc' => $input[ 'rfc' ],
+					'base64' => '',
+					'type' => 'jpeg',
+				];
+			}else{
+				$uploadedFile = $_FILES[ 'letter' ];
+				$base64 = base64_encode ( file_get_contents ( $uploadedFile[ 'tmp_name' ] ) );
+				$data = [
+					'rfc' => $input[ 'rfc' ],
+					'base64' => $base64,
+					'type' => explode ( '/', $uploadedFile[ 'type' ] )[ 1 ],
+				];
 			}
-			$uploadedFile = $_FILES[ 'letter' ];
-			$base64 = base64_encode ( file_get_contents ( $uploadedFile[ 'tmp_name' ] ) );
-			$data = [
-				'rfc' => $input[ 'rfc' ],
-				'base64' => $base64,
-				'type' => explode ( '/', $uploadedFile[ 'type' ] )[ 1 ],
-			];
 			$bBull = new BlueBullModel();
 			$fichas = $bBull->consultaFichas ( $data, $this->env );
 			if ( !$fichas[ 0 ] ) {

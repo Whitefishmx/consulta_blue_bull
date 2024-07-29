@@ -13,7 +13,8 @@
 	use Psr\Log\LoggerInterface;
 	
 	abstract class BaseController extends Controller {
-		public string $env = 'SANDBOX';
+		
+		public string $env = 'LIVE';
 		/**
 		 * Instance of the main Request object.
 		 *
