@@ -30,7 +30,7 @@ class Database extends Config
         'DSN'          => '',
         'hostname'     => 'localhost',
         'username'     => 'bluebull_jarvis',
-        'password'     => '$&BLu3BUll\24',
+        'password'     => 'BLu3BUll24',
         'database'     => 'bluebull_sandbox',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',

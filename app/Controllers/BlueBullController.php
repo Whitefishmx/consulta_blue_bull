@@ -9,7 +9,8 @@
 	class BlueBullController extends BaseController {
 		public function index () {
 			if ( $this->validateSession () ) {
-				return view ( 'header' ) . view ( 'bluebull' ) . view ( 'footer' );
+				$data = [ 'main' => view ('bluebull') ];
+				return view ( 'plantilla', $data );
 			}
 			return redirect()->route('signin');
 		}
@@ -23,13 +24,13 @@
 			}
 			$input = $this->getRequestInput ( $this->request );
 			$data = [];
-			if ( $_FILES[ 'letter' ][ 'error' ] !== UPLOAD_ERR_OK ) {
+			if ( !isset($_FILES[ 'letter' ])) {
 				$data = [
 					'rfc' => $input[ 'rfc' ],
 					'base64' => '',
 					'type' => 'jpeg',
 				];
-			}else{
+			}else if ($_FILES[ 'letter' ][ 'error' ] == UPLOAD_ERR_OK){
 				$uploadedFile = $_FILES[ 'letter' ];
 				$base64 = base64_encode ( file_get_contents ( $uploadedFile[ 'tmp_name' ] ) );
 				$data = [

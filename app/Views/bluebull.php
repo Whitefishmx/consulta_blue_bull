@@ -13,7 +13,7 @@
 					<div class="file-field input-field col s7">
 						<div class="btn">
 							<span>Carta de autorización</span>
-							<input id="letter" name="letter" type="file" accept="image/*" required>
+							<input id="letter" name="letter" type="file" accept="image/*">
 						</div>
 						<div class="file-path-wrapper">
 							<label>

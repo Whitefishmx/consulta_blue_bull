@@ -12,7 +12,8 @@
 				return redirect ( '/' );
 			}
 			$data = [ 'session' => FALSE ];
-			return view ( 'header', $data ) . view ( 'signin' ) . view ( 'footer' );
+			$data = [ 'main' => view ('signin') ];
+			return view ( 'plantilla', $data );
 		}
 		public function signIn (): ResponseInterface|bool {
 			if ( $data = $this->verifyRules ( 'POST', $this->request, NULL ) ) {
