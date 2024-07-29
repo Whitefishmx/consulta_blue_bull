@@ -97,8 +97,7 @@
 								<contrasena>#0987#qrte12</contrasena>
 								$data
 							</transaccion>
-							</transacciones>" ],
-			] );
+							</transacciones>" ],] );
 			$response = curl_exec ( $curl );
 			curl_close ( $curl );
 			return $response;
