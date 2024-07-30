@@ -1,13 +1,9 @@
-const CACHE_NAME = 'v1';
-const urlsToCache = [
+var CACHE_NAME = 'v1';
+var urlsToCache = [
 	'https://code.jquery.com/jquery-3.6.0.min.js',
 	'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js',
 	'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css'
 ];
-self.addEventListener('install', (event) => {
-	console.log("[CHECK]: Service_Worker_Installing...")
-	self.skipWaiting();
-});
 self.addEventListener('install', function(event) {
 	event.waitUntil(
 		caches.open(CACHE_NAME)

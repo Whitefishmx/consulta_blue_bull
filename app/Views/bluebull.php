@@ -17,7 +17,7 @@
 						</div>
 						<div class="file-path-wrapper">
 							<label>
-								<input class="file-path validate" type="text">
+								<input id="letterLbl" class="file-path validate" type="text">
 							</label>
 						</div>
 					</div>
@@ -84,7 +84,8 @@
 				},
 				success: function (response) {
 					let tr;
-					$("#tBody").empty();
+					let tbody = $("#tBody");
+					tbody.empty();
 					M.Toast.dismissAll();
 					$.each(response, function (index, value) {
 						tr += "<tr>" +
@@ -99,8 +100,11 @@
 							"<td>" + value.nacimiento + "</td>" +
 							"</tr>";
 					});
-					$("#tBody").append(tr);
+					tbody.append(tr);
 					divRes.css("display", "block");
+					$("#rfc").val('');
+					$("#letter").val('');
+					$('#letterLbl').val('');
 				},
 				complete: function () {
 					$("#Loader").css({
