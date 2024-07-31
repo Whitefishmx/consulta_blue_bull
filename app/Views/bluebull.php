@@ -24,6 +24,7 @@
 				</div>
 				<div class="row">
 					<button id="btnSend" name="btnSend" type="submit" class="btn btn-dark blue">Validar RFC</button>
+					<button id="clean" name="clean" type="button" class="btn btn-dark red">Limpiar</button>
 				</div>
 			</form>
 		</div>
@@ -51,11 +52,18 @@
 	$(document).ready(function () {
 		const search = $("#SearchRFC");
 		const divRes = $("#result");
+		$('#clean').on('click', function(){
+			$("#rfc").val('');
+			$("#letter").val('');
+			$('#letterLbl').val('');
+			M.Toast.dismissAll();
+		});
 		search.on("submit", function (e) {
 			e.preventDefault();
 			const formData = new FormData($("#formulario")[0]);
 			const letter = $("#letter")[0].files[0];
 			const rfc = $("#rfc").val();
+			let tbody = $("#tBody");
 			formData.append("letter", letter);
 			formData.append("rfc", rfc);
 			$.ajax({
@@ -84,7 +92,6 @@
 				},
 				success: function (response) {
 					let tr;
-					let tbody = $("#tBody");
 					tbody.empty();
 					M.Toast.dismissAll();
 					$.each(response, function (index, value) {

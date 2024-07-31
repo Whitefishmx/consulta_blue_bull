@@ -23,14 +23,14 @@
 				return ( $data );
 			}
 			$input = $this->getRequestInput ( $this->request );
-			$data = [];
-			if ( !isset($_FILES[ 'letter' ])) {
+			$data = array();
+			if ( !isset($_FILES[ 'letter' ]) || $_FILES[ 'letter' ][ 'error' ] !== UPLOAD_ERR_OK) {
 				$data = [
 					'rfc' => $input[ 'rfc' ],
 					'base64' => '',
 					'type' => 'jpeg',
 				];
-			}else if ($_FILES[ 'letter' ][ 'error' ] == UPLOAD_ERR_OK){
+			}else if ($_FILES[ 'letter' ][ 'error' ] === UPLOAD_ERR_OK){
 				$uploadedFile = $_FILES[ 'letter' ];
 				$base64 = base64_encode ( file_get_contents ( $uploadedFile[ 'tmp_name' ] ) );
 				$data = [
