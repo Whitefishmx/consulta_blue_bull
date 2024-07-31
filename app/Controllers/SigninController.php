@@ -22,7 +22,7 @@
 			$input = $this->getRequestInput ( $this->request );
 			$user = new UserModel();
 			helper ( 'crypt_helper' );
-			$res = $user->validateAccess ( $input[ 'email' ], utf8_encode ( passwordEncrypt ( $input[ 'password' ] ) ), $this->env );
+			$res = $user->validateAccess ( $input[ 'email' ],  ( passwordEncrypt ( $input[ 'password' ] ) ), $this->env );
 			if ( !$res[ 0 ] ) {
 				return $this->errDataSuplied ( 'Las credenciales ingresadas son incorrectas' );
 			}
