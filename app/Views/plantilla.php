@@ -92,11 +92,11 @@
     #Loader {
         display: none;
         position: absolute;
-        background-color: rgba(255, 255, 255, .1);
-        background-image: url('/assets/img/logo.png') !important;
+        background-color: rgba(255, 255, 255, .2);
+        background-image: url('/assets/img/loader.gif') !important;
         background-repeat: no-repeat;
         background-position: center;
-        background-size: 60%;
+        background-size: 10%;
         top: 0;
         z-index: 999;
         transition: opacity 5s ease, visibility 5s ease;
