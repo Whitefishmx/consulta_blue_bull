@@ -11,24 +11,34 @@
 			if ( $this->validateSession () ) {
 				return redirect ( '/' );
 			}
-			$data = [ 'session' => FALSE ];
-			$data = [ 'main' => view ('signin') ];
+			$data = [ 'main' => view ( 'signin' ), 'session' => FALSE ];
 			return view ( 'plantilla', $data );
 		}
 		public function signIn (): ResponseInterface|bool {
+			$this->input = $this->getRequestInput ( $this->request );
 			if ( $data = $this->verifyRules ( 'POST', $this->request, NULL ) ) {
-				return ( $data );
+				$this->logResponse ( 1 );
+				return $this->getResponse ( $this->responseBody, $this->errCode );
 			}
-			$input = $this->getRequestInput ( $this->request );
 			$user = new UserModel();
 			helper ( 'crypt_helper' );
-			$res = $user->validateAccess ( $input[ 'email' ],  ( passwordEncrypt ( $input[ 'password' ] ) ), $this->env );
+			$res = $user->validateAccess ( $this->input[ 'email' ], $this->input[ 'password' ] = ( passwordEncrypt (
+				$this->input[ 'password' ] )
+			), $this->env );
 			if ( !$res[ 0 ] ) {
-				return $this->errDataSuplied ( 'Las credenciales ingresadas son incorrectas' );
+				$this->errDataSuplied ( 'Las credenciales ingresadas son incorrectas' );
+				$this->logResponse ( 1 );
+				return $this->getResponse ( $this->responseBody, $this->errCode );
 			}
 			$session = session ();
 			$session->set ( 'logged_in', TRUE );
 			$session->set ( 'user', $res[ 1 ] );
-			return $this->getResponse ( [ 'error' => 0, 'description' => 'Datos de petición correcto', 'reason' => 'Inicio de sesión exitoso' ] );
+			$this->errCode = 200;
+			$this->responseBody = [
+				'error'       => 0,
+				'description' => 'Datos de petición correcto',
+				'reason'      => 'Inicio de sesión exitoso' ];
+			$this->logResponse ( 1 );
+			return $this->getResponse ( $this->responseBody );
 		}
 	}

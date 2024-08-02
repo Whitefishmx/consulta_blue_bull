@@ -52,10 +52,10 @@
 	$(document).ready(function () {
 		const search = $("#SearchRFC");
 		const divRes = $("#result");
-		$('#clean').on('click', function(){
-			$("#rfc").val('');
-			$("#letter").val('');
-			$('#letterLbl').val('');
+		$("#clean").on("click", function () {
+			$("#rfc").val("");
+			$("#letter").val("");
+			$("#letterLbl").val("");
 			M.Toast.dismissAll();
 		});
 		search.on("submit", function (e) {
@@ -109,9 +109,9 @@
 					});
 					tbody.append(tr);
 					divRes.css("display", "block");
-					$("#rfc").val('');
-					$("#letter").val('');
-					$('#letterLbl').val('');
+					$("#rfc").val("");
+					$("#letter").val("");
+					$("#letterLbl").val("");
 				},
 				complete: function () {
 					$("#Loader").css({
@@ -134,6 +134,13 @@
 							"<button onclick='M.Toast.dismissAll()' class='btn-flat toast-action'>" +
 							"<span class='material-icons' style='display: block; color: white;'>cancel</span></button>";
 						M.toast({html: toastHTML, displayLength: 20000, duration: 20000});
+					}
+				},
+				statusCode: {
+					307: function () {
+						setTimeout(function () {
+							window.location = "/";
+						}, 2000);
 					}
 				}
 			});

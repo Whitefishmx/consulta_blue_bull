@@ -1,20 +1,23 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 	
 	namespace App\Controllers;
 	
-	use CodeIgniter\Controller;
-	use CodeIgniter\HTTP\CLIRequest;
-	use CodeIgniter\HTTP\IncomingRequest;
-	use CodeIgniter\HTTP\RequestInterface;
-	use CodeIgniter\HTTP\ResponseInterface;
 	use CodeIgniter\Validation\Exceptions\ValidationException;
+	use CodeIgniter\HTTP\ResponseInterface;
+	use CodeIgniter\HTTP\RequestInterface;
+	use CodeIgniter\HTTP\IncomingRequest;
+	use CodeIgniter\HTTP\CLIRequest;
+	use Psr\Log\LoggerInterface;
+	use CodeIgniter\Controller;
 	use Config\Services;
 	use DateTime;
-	use Psr\Log\LoggerInterface;
 	
 	abstract class BaseController extends Controller {
-		
-		public string $env = 'LIVE';
+		public string $env          = 'LIVE';
+		public int    $user         = 2;
+		public int    $errCode      = 200;
+		public array  $responseBody = [];
+		public mixed  $input        = NULL;
 		/**
 		 * Instance of the main Request object.
 		 *
@@ -28,8 +31,15 @@
 		 *
 		 * @var array
 		 */
-		protected $helpers = [];
+		protected $helpers = [ 'tools_helper' ];
 		public function __construct () {
+			$this->responseBody = [
+				'error'       => $this->errCode,
+				'description' => 'Sesión invalida',
+				'reason'      => 'la sesión a caducado, vuelve a iniciar sesión' ];
+		}
+		public function logResponse ( int $function, array $inputData = NULL, array $responseData = NULL ): void {
+			saveLog ( $this->user, $function, $this->errCode, json_encode ( $inputData ?? $this->input, JSON_UNESCAPED_UNICODE ), json_encode ( $responseData ?? $this->responseBody, JSON_UNESCAPED_UNICODE ), $this->env );
 		}
 		/**
 		 * @param RequestInterface  $request
@@ -48,8 +58,9 @@
 		public function getResponse ( array $responseBody, int $code = ResponseInterface::HTTP_OK ): ResponseInterface {
 			//			echo json_encode ( $responseBody );
 			return $this->response->setStatusCode ( $code )->setJSON ( $responseBody )
-				->setHeader ( 'Access-Control-Allow-Origin', '*' )
-				->setHeader ( 'Content-Type', 'application/json' )->setContentType ( 'application/json' );
+			                      ->setHeader ( 'Access-Control-Allow-Origin', '*' )
+			                      ->setHeader ( 'Content-Type', 'application/json' )
+			                      ->setContentType ( 'application/json' );
 		}
 		/**
 		 * Obtiene los datos que se reciben en la petición
@@ -57,24 +68,15 @@
 		 * @param IncomingRequest $request
 		 *
 		 * @return array|bool|float|int|mixed|object|string|null
+		 * @noinspection PhpDeprecationInspection
 		 */
 		public function getRequestInput ( IncomingRequest $request ): mixed {
-			$input = $request->getPost ();
-			if ( empty( $input ) ) {
-				$input = json_decode ( $request->getBody (), TRUE );
+			$method = strtolower ( $request->getMethod () );
+			if ( $method === 'post' ) {
+				$input = $request->getPost ();
+			} else {
+				$input = $request->getGet ();
 			}
-			return $input;
-		}
-		/**
-		 * Obtiene los datos que se reciben por GET
-		 *
-		 * @param IncomingRequest $request
-		 *
-		 * @return mixed
-		 */
-		public function getGetRequestInput ( IncomingRequest $request ): mixed {
-			$input = $request->getPostGet ();
-			//			$input = $request->getPost ();
 			if ( empty( $input ) ) {
 				$input = json_decode ( $request->getBody (), TRUE );
 			}
@@ -91,23 +93,56 @@
 			$this->env = isset( $env[ 'environment' ] ) ? strtoupper ( $env[ 'environment' ] ) : 'SANDBOX';
 		}
 		//====================================|| Errores HTTP ||====================================
-		public function serverError ( $description, $reason ): ResponseInterface {
-			return $this->getResponse ( [ 'error' => 500, 'description' => $description, 'reason' => $reason ], ResponseInterface::HTTP_INTERNAL_SERVER_ERROR );
+		public function serverError ( $description, $reason ): array {
+			$this->errCode = 500;
+			$this->responseBody = [ 'error' => $this->errCode, 'description' => $description, 'reason' => $reason ];
+			return $this->responseBody;
 		}
-		public function dataTypeNotAllowed ( $dataType ): ResponseInterface {
-			return $this->getResponse ( [ 'error' => 400, 'description' => 'Tipo de dato invalido', 'reason' => 'Se esperaba contenido en formato [' . $dataType . ']' ], ResponseInterface::HTTP_BAD_REQUEST );
+		public function dataTypeNotAllowed ( $dataType ): array {
+			$this->errCode = 400;
+			$this->responseBody = [
+				'error'       => $this->errCode,
+				'description' => 'Tipo de dato invalido',
+				'reason'      => 'Se esperaba contenido en formato ['.$dataType.']' ];
+			return $this->responseBody;
 		}
-		public function methodNotAllowed ( $endpoint ): ResponseInterface {
-			return $this->getResponse ( [ 'error' => 405, 'description' => 'Método no implementado', 'reason' => 'El método utilizado no coincide con el que solicita [' . $endpoint . ']' ], ResponseInterface::HTTP_METHOD_NOT_ALLOWED );
+		public function methodNotAllowed ( $endpoint ): array {
+			$this->errCode = 405;
+			$this->responseBody = [
+				'error'       => $this->errCode,
+				'description' => 'Método no implementado',
+				'reason'      => 'El método utilizado no coincide con el que solicita ['.$endpoint.']' ];
+			return $this->responseBody;
 		}
-		public function errDataSuplied ( $reason ): ResponseInterface {
-			return $this->getResponse ( [ 'error' => 400, 'description' => 'Datos de petición incorrectos', 'reason' => $reason ], ResponseInterface::HTTP_BAD_REQUEST );
+		public function errDataSuplied ( $reason ): array {
+			$this->errCode = 400;
+			$this->responseBody = [
+				'error'       => $this->errCode,
+				'description' => 'Datos de petición incorrectos',
+				'reason'      => $reason ];
+			return $this->responseBody;
 		}
 		public function pageNotFound (): ResponseInterface {
-			return $this->getResponse ( [ 'error' => 404, 'description' => 'Recurso no encontrada', 'reason' => 'Verifique que el endpoint sea correcto' ], ResponseInterface::HTTP_NOT_FOUND );
+			$this->errCode = 404;
+			return $this->getResponse ( [
+				'error'       => $this->errCode,
+				'description' => 'Recurso no encontrada',
+				'reason'      => 'Verifique que el endpoint sea correcto' ], ResponseInterface::HTTP_NOT_FOUND );
 		}
 		public function dataNotFound (): ResponseInterface {
-			return $this->getResponse ( [ 'error' => 404, 'description' => 'Recurso no encontrada', 'reason' => 'No se encontró información con los datos ingresados' ], ResponseInterface::HTTP_NOT_FOUND );
+			$this->errCode = 404;
+			return $this->getResponse ( [
+				'error'       => $this->errCode,
+				'description' => 'Recurso no encontrada',
+				'reason'      => 'No se encontró información con los datos ingresados' ], ResponseInterface::HTTP_NOT_FOUND );
+		}
+		public function redirectLogIn (): array {
+			$this->errCode = 307;
+			$this->responseBody = [
+				'error'       => $this->errCode,
+				'description' => 'Sesión invalida',
+				'reason'      => 'la sesión a caducado, vuelve a iniciar sesión' ];
+			return $this->responseBody;
 		}
 		//==========================================================================================
 		//====================================|| Validaciones y filtros ||====================================
@@ -118,9 +153,9 @@
 		 * @param mixed       $request  Petición completa
 		 * @param string|null $dataType Tipo de dato que se requiere
 		 *
-		 * @return ResponseInterface|bool
+		 * @return array|bool
 		 */
-		public function verifyRules ( string $method, mixed $request, ?string $dataType ): ResponseInterface|bool {
+		public function verifyRules ( string $method, mixed $request, ?string $dataType ): array|bool {
 			if ( !$request->is ( $method ) ) {
 				return $this->methodNotAllowed ( $request->getPath () );
 			}
@@ -148,7 +183,7 @@
 					throw ValidationException::forRuleNotFound ( $rules );
 				}
 				if ( !$messages ) {
-					$errorName = $rules . '_errors';
+					$errorName = $rules.'_errors';
 					$messages = $validation->$errorName ?? [];
 				}
 				$rules = $validation->$rules;
@@ -167,8 +202,8 @@
 		public function dateFilter ( mixed $input, string $from, string $to ): array {
 			$from = DateTime::createFromFormat ( 'Y-m-d', $input[ $from ] );
 			$to = DateTime::createFromFormat ( 'Y-m-d', $input[ $to ] );
-			$from = strtotime ( $from->format ( 'm/d/y' ) . ' -1day' );
-			$to = strtotime ( $to->format ( 'm/d/y' ) . ' +1day' );
+			$from = strtotime ( $from->format ( 'm/d/y' ).' -1day' );
+			$to = strtotime ( $to->format ( 'm/d/y' ).' +1day' );
 			return [ $from, $to ];
 		}
 		/**
@@ -179,6 +214,11 @@
 			$session = session ();
 			$login = $session->get ( 'logged_in' ) !== NULL ? $session->get ( 'logged_in' ) : FALSE;
 			$session->set ( 'logged_in', $login );
+			if ( $login ) {
+				$this->user = $session->get ( 'user' );
+			} else {
+				$this->errCode = 500;
+			}
 			return $login;
 		}
 	}

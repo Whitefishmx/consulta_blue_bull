@@ -90,7 +90,7 @@ VALUES ($inserted, '{$args['name']}', '{$args['lastName']}', ";
 			$query = "SELECT id FROM $this->base.users WHERE (nickname = '$login' AND password = '$password') OR (email = '$login' AND password = '$password')";
 			$res = $this->db->query ( $query );
 			if ( $res->getNumRows () > 0 ) {
-				return [ TRUE, $res->getResultArray () ];
+				return [ TRUE, $res->getRow ('id') ];
 			}
 			return [ FALSE, $res->getNumRows () ];
 		}

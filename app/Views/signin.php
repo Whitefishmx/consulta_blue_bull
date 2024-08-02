@@ -59,7 +59,7 @@
 			});
 			const jsonData = JSON.stringify(formData);
 			$.ajax({
-				url: "/signin",
+				url: "/toSignIn",
 				dataType: "json",
 				data: jsonData,
 				processData: false,

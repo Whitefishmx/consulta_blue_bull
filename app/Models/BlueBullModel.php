@@ -4,18 +4,18 @@
 	class BlueBullModel extends BaseModel {
 		private array $sandbox = [
 			'sandbox' => [
-				'url' => 'https://sad.bluebull.mx/demob/integrador_wsdl.php',
-				'user'=> 'VATORO.INTEGRADOR',
-				'pass' => '#0987#qrte12']];
-		private array $live = [
+				'url'  => 'https://sad.bluebull.mx/demob/integrador_wsdl.php',
+				'user' => 'VATORO.INTEGRADOR',
+				'pass' => '#0987#qrte12' ] ];
+		private array $live    = [
 			'gob' => [
-				'url'=>'https://sad.bluebull.mx/gobsonora/integrador_wsdl.php',
-				'user'=> 'VATORO.INTEGRADOR',
-				'pass' => '#0987#qrte12'],
+				'url'  => 'https://sad.bluebull.mx/gobsonora/integrador_wsdl.php',
+				'user' => 'VATORO.INTEGRADOR',
+				'pass' => '#0987#qrte12' ],
 			'edu' => [
-				'url'=>'https://sad.bluebull.mx/edusonora/integrador_wsdl.php',
-				'user'=> 'VATORO.INTEGRADOR',
-				'pass' => '#1357#adgji15']];
+				'url'  => 'https://sad.bluebull.mx/edusonora/integrador_wsdl.php',
+				'user' => 'VATORO.INTEGRADOR',
+				'pass' => '#1357#adgji15' ] ];
 		/**
 		 * Consulta la ficha de un rfc
 		 *
@@ -28,56 +28,48 @@
 			$this->environment = $env === NULL ? $this->environment : $env;
 			$credentials = strtoupper ( $this->environment ) === 'SANDBOX' ? $this->sandbox : $this->live;
 			$endpoint = 'CONSULTAFICHAS';
-			$links=[];
+			$links = [];
 			foreach ( $credentials as $value => $row ) {
-				$data ="
+				$data = "
 				<login>{$row['user']}</login>
 				<contrasena>{$row['pass']}</contrasena>
 				<rfc>{$args['rfc']}</rfc>
                 <documento_autorizacion_datos>
                 <![CDATA[data:image/{$args['type']};base64,{$args['base64']}]]>
                 </documento_autorizacion_datos>";
-				$res = $this->sendRequest ( $row['url'], $data, $endpoint );
+				$res = $this->sendRequest ( $row[ 'url' ], $data, $endpoint );
 				libxml_use_internal_errors ( TRUE );
 				$xml = simplexml_load_string ( $res );
 				if ( $xml === FALSE ) {
-					$links[]= [ FALSE, 'Error al consultar Blue Bull', $value ];
+					$links[] = [ FALSE, 'Error al consultar Blue Bull', $value ];
 				}
 				if ( isset( $xml->transaccion->error ) ) {
-					$links[]= [ FALSE, (string)$xml->transaccion->error->descripcion, $value ];
+					$links[] = [ FALSE, (string)$xml->transaccion->error->descripcion, $value ];
 				}
 				foreach ( $xml->transaccion->vinculo as $vinculo ) {
 					$links[] = [
-						'ficha' => (string)$vinculo->ficha,
-						'rfc' => (string)$vinculo->rfc,
-						'nomina' => (string)$vinculo->nomina,
-						'clave' => (string)$vinculo->clave,
-						'nombre' => (string)$vinculo->nombre,
-						'tipo_limite' => (string)$vinculo->tipo_limite,
+						'ficha'         => (string)$vinculo->ficha,
+						'rfc'           => (string)$vinculo->rfc,
+						'nomina'        => (string)$vinculo->nomina,
+						'clave'         => (string)$vinculo->clave,
+						'nombre'        => (string)$vinculo->nombre,
+						'tipo_limite'   => (string)$vinculo->tipo_limite,
 						'limite_actual' => (string)$vinculo->limite_actual,
-						'puesto' => (string)$vinculo->puesto,
-						'estable' => (string)$vinculo->estable,
-						'nacimiento' => (string)$vinculo->nacimiento,
-						'origen' => $value,
+						'puesto'        => (string)$vinculo->puesto,
+						'estable'       => (string)$vinculo->estable,
+						'nacimiento'    => (string)$vinculo->nacimiento,
+						'origen'        => $value,
 					];
 				}
 			}
-			$subtotal = count ($links);
-			$counter = 0;
-			for ($i = 0; $i < count($links); $i++) {
-				if (isset($links[$i][0])){
-					$error[] = $i;
-					$counter++;
-				}
+			$error = array_filter ( $links, function ( $link ) {
+				return !isset( $link[ 'rfc' ] );
+			} );
+			if ( count ( $error ) === count ( $links ) ) {
+				return [ FALSE, 'No se encontró el RFC' ];
 			}
-			arsort ($error);
-			foreach ($error as $key){
-				unset($links[$key]);
-			}
-			if ($counter === $subtotal){
-				return [ FALSE, 'No se encontró el RFC'];
-			}
-			return $links;
+			$links = array_diff_key ( $links, $error );
+			return array_values ( $links );
 		}
 		/**
 		 * Consulta el límite de crédito de una ficha
@@ -98,7 +90,7 @@
             <rfc>{$args['rfc']}</rfc>
             <nomina>{$args['nomina']}</nomina>
             <clave>{$args['clave']}</clave>";
-			$res = $this->sendRequest ( $credentials[$args['origen']]['url'], $data, $endpoint );
+			$res = $this->sendRequest ( $credentials[ $args[ 'origen' ] ][ 'url' ], $data, $endpoint );
 			libxml_use_internal_errors ( TRUE );
 			$xml = simplexml_load_string ( $res );
 			if ( $xml === FALSE ) {
@@ -114,22 +106,22 @@
 		function sendRequest ( string $url, string $data, string $endpoint ): bool|string {
 			$curl = curl_init ();
 			curl_setopt_array ( $curl, [
-				CURLOPT_URL => $url,
+				CURLOPT_URL            => $url,
 				CURLOPT_RETURNTRANSFER => TRUE,
-				CURLOPT_ENCODING => '',
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 0,
+				CURLOPT_ENCODING       => '',
+				CURLOPT_MAXREDIRS      => 10,
+				CURLOPT_TIMEOUT        => 0,
 				CURLOPT_FOLLOWLOCATION => TRUE,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => 'POST',
-				CURLOPT_POSTFIELDS => [
+				CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST  => 'POST',
+				CURLOPT_POSTFIELDS     => [
 					'transaccion' =>
 						"<transacciones>
 							<transaccion type='$endpoint'>
 								<id>1</id>
 								$data
 							</transaccion>
-							</transacciones>" ],] );
+							</transacciones>" ], ] );
 			$response = curl_exec ( $curl );
 			curl_close ( $curl );
 			return $response;
