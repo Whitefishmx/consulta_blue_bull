@@ -30,7 +30,7 @@
 		 */
 		public function getNexId ( string $table, string $env = NULL ): int|array {
 			$this->environment = $env === NULL ? $this->environment : $env;
-			$this->base = strtoupper ( $this->environment ) === 'SANDBOX' ? $this->APISandbox : $this->APILive;
+			$this->base = strtoupper ( $this->environment ) === 'SANDBOX' ? $this->dbsandbox : $this->dbprod;
 			$query = "SELECT MAX(id) AS id FROM $this->base.$table";
 			if ( !$res = $this->db->query ( $query ) ) {
 				return [ FALSE, 'No se encontró información de '.$table ];
@@ -40,7 +40,7 @@
 		}
 		public function saveLogs ( array $args, string $env = NULL ): bool {
 			$this->environment = $env === NULL ? $this->environment : $env;
-			$this->base = strtoupper ( $this->environment ) === 'SANDBOX' ? $this->APISandbox : $this->APILive;
+			$this->base = strtoupper ( $this->environment ) === 'SANDBOX' ? $this->dbsandbox : $this->dbprod;
 			$query = "INSERT INTO $this->base.logs ( id_user, task, code, data_in, result )
 VALUES ( {$args['user']}, {$args['function']}, {$args['code']}, ";
 			$query .= $args[ 'dataIn' ] === NULL ? " NULL, " : " '".( $args[ 'dataIn' ] )."', ";
