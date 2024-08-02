@@ -38,7 +38,7 @@
 		],
 	];
 	$session = $session ?? 0;
-	$menuSelected = $menuItems[ $session === 0 ? 'login' : 'logout' ];
+	$menuSelected = $menuItems[ intval ($session) === 0 ? 'login' : 'logout' ];
 	$menu = array_reduce ( $menuSelected, function ( $carry, $item ) {
 		return $carry . "<li><a href='$item[1]'>$item[0]</a></li>";
 	}, '' );

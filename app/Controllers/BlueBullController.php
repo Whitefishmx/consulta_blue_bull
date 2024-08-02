@@ -9,7 +9,7 @@
 	class BlueBullController extends BaseController {
 		public function index (): string|RedirectResponse {
 			if ( $this->validateSession () ) {
-				$data = [ 'main' => view ( 'bluebull', [ 'session' => 1 ] ) ];
+				$data = [ 'main' => view ( 'bluebull', [ 'session' => TRUE ] ) ];
 				return view ( 'plantilla', $data );
 			}
 			return redirect ()->route ( 'signin' );
